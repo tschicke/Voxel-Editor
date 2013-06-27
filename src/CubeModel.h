@@ -38,6 +38,7 @@ private:
 
 	int width, height, depth;
 	float scale;
+	int zoom;
 
 	SelectedBlock selectedBlock;
 

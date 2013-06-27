@@ -27,6 +27,7 @@ CubeModel::CubeModel() {
 	yaw = 0;
 	pitch = 0;
 	viewMatrixNeedsUpdate = false;
+	zoom = 1;
 
 	storage = NULL;
 }
@@ -39,6 +40,10 @@ CubeModel::CubeModel(int w, int h, int d) {
 	yaw = 0;
 	pitch = 0;
 	viewMatrixNeedsUpdate = true;
+
+	int maxHeightDepth = (height > depth ? height : depth);
+	int maxWidthHeightDepth = (width > maxHeightDepth ? width : maxHeightDepth);
+	zoom = maxWidthHeightDepth;
 
 	selectedBlock.x = selectedBlock.y = selectedBlock.z = 0;
 
@@ -90,8 +95,7 @@ void CubeModel::update(time_t dt) {
 		position.y = sinf(pitchR);
 		position.z = cosf(yawR) * cosf(pitchR);
 
-		int maxHeightDepth = (height > depth ? height : depth);
-		position *= (width > maxHeightDepth ? width : maxHeightDepth);
+		position *= zoom;
 
 		position += center;
 
@@ -131,6 +135,26 @@ void CubeModel::handleInput() {
 		load();
 	}
 
+	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Up) == ts::Keyboard::keyPressed) {
+		zoom -= 1;
+		int maxHeightDepth = (height > depth ? height : depth);
+		int maxWidthHeightDepth = (width > maxHeightDepth ? width : maxHeightDepth);
+		if (zoom < maxWidthHeightDepth / 2) {
+			zoom = maxWidthHeightDepth / 2;
+		}
+		viewMatrixNeedsUpdate = true;
+	}
+
+	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Down) == ts::Keyboard::keyPressed) {
+		zoom += 1;
+		int maxHeightDepth = (height > depth ? height : depth);
+		int maxWidthHeightDepth = (width > maxHeightDepth ? width : maxHeightDepth);
+		if (zoom > maxWidthHeightDepth * 2) {
+			zoom = maxWidthHeightDepth * 2;
+		}
+		viewMatrixNeedsUpdate = true;
+	}
+
 	if (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button0) == ts::Mouse::buttonPressed) {
 		if (selectedBlock.block != NULL) {
 			Block * block = storage->getBlockArray()[selectedBlock.x * height * depth + selectedBlock.y * depth + selectedBlock.z];
@@ -168,26 +192,26 @@ void CubeModel::save() {
 	std::cout << "enter save file name\n";
 	std::cin >> fileName;
 	std::ofstream file(fileName, std::ios::binary);
-	if(!file.is_open()){
+	if (!file.is_open()) {
 		std::cout << "file couldn't be opened\n";
 		return;
 	}
 
 	const char * identifier = "cm";
 	file.write(identifier, 2);
-	file.write((char *)&width, 4);
-	file.write((char *)&height, 4);
-	file.write((char *)&depth, 4);
+	file.write((char *) &width, 4);
+	file.write((char *) &height, 4);
+	file.write((char *) &depth, 4);
 
-	for(int x = 0; x < width; ++x){
-		for(int y = 0; y < height; ++y){
-			for(int z = 0; z < depth; ++z){
+	for (int x = 0; x < width; ++x) {
+		for (int y = 0; y < height; ++y) {
+			for (int z = 0; z < depth; ++z) {
 				int blockIndex = x * height * depth + y * depth + z;
 				Block * block = storage->getBlockArray()[blockIndex];
 
 				bool isDrawn = block->isDrawn();
 				glm::vec3 blockColor = block->getColor();
-				file.write((char *)&isDrawn, 1);
+				file.write((char *) &isDrawn, 1);
 				file.write((char *) &(blockColor.x), 4);
 				file.write((char *) &(blockColor.y), 4);
 				file.write((char *) &(blockColor.z), 4);
@@ -204,7 +228,7 @@ void CubeModel::load() {
 	std::cin >> fileName;
 	std::ifstream file(fileName, std::ios::binary);
 
-	if(!file.is_open()){
+	if (!file.is_open()) {
 		std::cout << "file could not be opened\n";
 		return;
 	}
@@ -212,33 +236,48 @@ void CubeModel::load() {
 	char identifier[2];
 	file.read(&identifier[0], 1);
 	file.read(&identifier[1], 1);
-	if(!(identifier[0] == 'c' && identifier[1] == 'm')){
+	if (!(identifier[0] == 'c' && identifier[1] == 'm')) {
 		std::cout << "wrong file format\n";
 		return;
 	}
 
-	file.read((char*)&width, 4);
-	file.read((char*)&height, 4);
-	file.read((char*)&depth, 4);
+	char header[12];
 
-	for(int x = 0; x < width; ++x){
-		for(int y = 0; y < height; ++y){
-			for(int z = 0; z < depth; ++z){
+	file.read(header, 12);
+
+	width = *(int *) &header[0];
+	height = *(int *) &header[4];
+	depth = *(int *) &header[8];
+
+	int numCubes = width * height * depth;
+	int bytesPerCube = 13;
+	int bufferSize = numCubes * bytesPerCube;
+	char * buffer = new char[bufferSize];
+
+	file.read(buffer, bufferSize);
+
+	for (int x = 0; x < width; ++x) {
+		for (int y = 0; y < height; ++y) {
+			for (int z = 0; z < depth; ++z) {
 				int blockIndex = x * height * depth + y * depth + z;
 				Block * block = storage->getBlockArray()[blockIndex];
 
-				bool drawn = true;
+				bool drawn = *(bool *) &buffer[blockIndex * bytesPerCube];
 				glm::vec3 blockColor;
-				file.read((char *) drawn, 1);
-				file.read((char *) &(blockColor.x), 4);
-				file.read((char *) &(blockColor.y), 4);
-				file.read((char *) &(blockColor.z), 4);
+
+				blockColor.x = *(float *) &buffer[blockIndex * bytesPerCube + 1];
+				blockColor.y = *(float *) &buffer[blockIndex * bytesPerCube + 5];
+				blockColor.z = *(float *) &buffer[blockIndex * bytesPerCube + 9];
 
 				block->setDrawn(drawn);
 				block->setColor(blockColor);
+
+				renderer.updateBlockAtPosition(x, y, z);
 			}
 		}
 	}
+
+	renderer.markDirty();
 
 	file.close();
 }

@@ -282,6 +282,10 @@ void CubeModel::load() {
 	file.close();
 }
 
+SelectedBlock CubeModel::getSelectedBlock() {
+	return selectedBlock;
+}
+
 void CubeModel::raytraceBlocks() {
 	glm::vec2 mousePos = ts::Mouse::getPosition();
 	glm::vec3 startPos = glm::unProject(glm::vec3(mousePos.x, 600 - mousePos.y, 0.f), viewMatrix, *(BaseRenderer::getProjectionMatrix()), glm::vec4(0, 0, 800, 600));

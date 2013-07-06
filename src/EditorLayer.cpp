@@ -6,6 +6,7 @@
  */
 
 #include "EditorLayer.h"
+#include "Keyboard.h"
 
 #include <iostream>
 
@@ -34,6 +35,11 @@ void EditorLayer::update(time_t dt) {
 }
 
 void EditorLayer::handleInput() {
+	if(ts::Keyboard::checkKeyEvent(ts::Keyboard::Space) == ts::Keyboard::keyPressed){
+		SelectedBlock block = model->getSelectedBlock();
+		model->setColor(block.block->getColor());
+		selector.setColor(block.block->getColor());
+	}
 	selector.input();
 }
 

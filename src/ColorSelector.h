@@ -23,6 +23,7 @@ public:
 	void init(int x, int y, int width, int height);
 
 	glm::vec3 getColor();
+	void setColor(glm::vec3 color);
 
 	void update(time_t dt);
 	void input();
@@ -30,6 +31,8 @@ public:
 
 private:
 	glm::vec3 color;
+
+	int sliderWidth;
 
 	int x, y, width, height;
 

@@ -32,6 +32,8 @@ public:
 	void save();
 	void load();
 
+	SelectedBlock getSelectedBlock();
+
 	friend class ModelRenderer;
 private:
 	void handleInput();

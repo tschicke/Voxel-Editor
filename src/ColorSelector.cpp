@@ -38,7 +38,7 @@ void ColorSelector::init(int x, int y, int width, int height) {
 
 	int sliderSpacingY = (height - (sliderOffsetY * 2)) / 3;
 
-	int sliderWidth = width - (2 * sliderOffsetX);
+	sliderWidth = width - (2 * sliderOffsetX);
 	int sliderHeight = (height - (2 * sliderOffsetY)) / 3;
 
 	redSlider = Slider(x + sliderOffsetX, y + sliderOffsetY + sliderHeight + sliderHeight + sliderSpacingY + sliderSpacingY, sliderWidth, sliderHeight);
@@ -71,6 +71,13 @@ void ColorSelector::input() {
 			blueSlider.setSliderX(mousePos.x - blueSlider.getX());
 		}
 	}
+}
+
+void ColorSelector::setColor(glm::vec3 color) {
+	this->color = color;
+	redSlider.setSliderX(color.r * sliderWidth);
+	greenSlider.setSliderX(color.g * sliderWidth);
+	blueSlider.setSliderX(color.b * sliderWidth);
 }
 
 void ColorSelector::draw() {

@@ -52,7 +52,7 @@ CubeModel::CubeModel(int w, int h, int d) {
 		for (int y = 0; y < h; ++y) {
 			for (int z = 0; z < d; ++z) {
 				int blockIndex = x * h * d + y * d + z;
-				Block * block = new Block(1, 0, 0, true);
+				Block * block = new Block(0.5f, 0.5f, 0.5f, true);
 				storage->getBlockArray()[blockIndex] = block;
 			}
 		}
@@ -127,14 +127,6 @@ void CubeModel::handleInput() {
 		viewMatrixNeedsUpdate = true;
 	}
 
-	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::S) == ts::Keyboard::keyPressed) {
-		save();
-	}
-
-	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::L) == ts::Keyboard::keyPressed) {
-		load();
-	}
-
 	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Up) == ts::Keyboard::keyPressed) {
 		zoom -= 1;
 		int maxHeightDepth = (height > depth ? height : depth);
@@ -155,7 +147,7 @@ void CubeModel::handleInput() {
 		viewMatrixNeedsUpdate = true;
 	}
 
-	if (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button0) == ts::Mouse::buttonPressed) {
+	if ((ts::Mouse::isButtonPressed(ts::Mouse::Button0) && (ts::Mouse::getLastMove().x != 0 || ts::Mouse::getLastMove().y != 0)) || (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button0) == ts::Mouse::buttonPressed)) {
 		if (selectedBlock.block != NULL) {
 			Block * block = storage->getBlockArray()[selectedBlock.x * height * depth + selectedBlock.y * depth + selectedBlock.z];
 
@@ -163,7 +155,7 @@ void CubeModel::handleInput() {
 			renderer.markDirty();
 		}
 	}
-	if (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button1) == ts::Mouse::buttonPressed) {
+	if ((ts::Mouse::isButtonPressed(ts::Mouse::Button1) && (ts::Mouse::getLastMove().x != 0 || ts::Mouse::getLastMove().y != 0)) || (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button1) == ts::Mouse::buttonPressed)) {
 		if (selectedBlock.block != NULL) {
 			glm::vec3 placeBlockPos = selectedBlock.getAddBlockPosition();
 			if (placeBlockPos.x >= 0 && placeBlockPos.x <= width - 1 && placeBlockPos.y >= 0 && placeBlockPos.y <= height - 1 && placeBlockPos.z >= 0 && placeBlockPos.z <= depth - 1) {
@@ -187,10 +179,7 @@ void CubeModel::setColor(glm::vec3 color) {
 	currentColor = color;
 }
 
-void CubeModel::save() {
-	char fileName[30];
-	std::cout << "enter save file name\n";
-	std::cin >> fileName;
+void CubeModel::save(const char * fileName) {
 	std::ofstream file(fileName, std::ios::binary);
 	if (!file.is_open()) {
 		std::cout << "file couldn't be opened\n";
@@ -222,10 +211,7 @@ void CubeModel::save() {
 	file.close();
 }
 
-void CubeModel::load() {
-	char fileName[30];
-	std::cout << "enter file name to load from\n";
-	std::cin >> fileName;
+void CubeModel::load(const char * fileName) {
 	std::ifstream file(fileName, std::ios::binary);
 
 	if (!file.is_open()) {
@@ -265,7 +251,7 @@ void CubeModel::load() {
 				bool drawn = *(bool *) &buffer[blockIndex * bytesPerCube];
 				glm::vec3 blockColor;
 
-				blockColor.x = *(float *) &buffer[blockIndex * bytesPerCube + 1];
+				blockColor.x = *(float *) &buffer[blockIndex * bytesPerCube + 1];//Change to save as byte not float
 				blockColor.y = *(float *) &buffer[blockIndex * bytesPerCube + 5];
 				blockColor.z = *(float *) &buffer[blockIndex * bytesPerCube + 9];
 

@@ -25,6 +25,11 @@ public:
 private:
 	CubeModel * model;
 	ColorSelector selector;
+
+	void loadModel();
+	void saveModel();
+
+	void createNewModel();
 };
 
 #endif /* EDITORLAYER_H_ */

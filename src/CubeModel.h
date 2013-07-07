@@ -29,8 +29,8 @@ public:
 
 	void setColor(glm::vec3 color);
 
-	void save();
-	void load();
+	void save(const char * fileName);
+	void load(const char * fileName);
 
 	SelectedBlock getSelectedBlock();
 

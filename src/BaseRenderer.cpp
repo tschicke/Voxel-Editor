@@ -14,6 +14,7 @@
 
 float BaseRenderer::fov = 90.f;
 glm::mat4 BaseRenderer::projectionMatrix = glm::perspective(fov, 800.f / 600.f, 0.1f, 100.f);
+//glm::mat4 BaseRenderer::projectionMatrix = glm::ortho(-400.f / 20, 400.f / 20, -300.f / 20, 300.f / 20, 0.1f, 100.f);
 
 BaseRenderer::BaseRenderer() {
 	vertexBufferID = 0;

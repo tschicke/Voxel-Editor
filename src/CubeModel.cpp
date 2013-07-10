@@ -147,7 +147,8 @@ void CubeModel::handleInput() {
 		viewMatrixNeedsUpdate = true;
 	}
 
-	if ((ts::Mouse::isButtonPressed(ts::Mouse::Button0) && (ts::Mouse::getLastMove().x != 0 || ts::Mouse::getLastMove().y != 0)) || (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button0) == ts::Mouse::buttonPressed)) {
+	if ((ts::Mouse::isButtonPressed(ts::Mouse::Button0) && (ts::Mouse::getLastMove().x != 0 || ts::Mouse::getLastMove().y != 0))
+			|| (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button0) == ts::Mouse::buttonPressed)) {
 		if (selectedBlock.block != NULL) {
 			Block * block = storage->getBlockArray()[selectedBlock.x * height * depth + selectedBlock.y * depth + selectedBlock.z];
 
@@ -155,7 +156,9 @@ void CubeModel::handleInput() {
 			renderer.markDirty();
 		}
 	}
-	if ((ts::Mouse::isButtonPressed(ts::Mouse::Button1) && (ts::Mouse::getLastMove().x != 0 || ts::Mouse::getLastMove().y != 0)) || (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button1) == ts::Mouse::buttonPressed)) {
+
+	if ((ts::Mouse::isButtonPressed(ts::Mouse::Button1) && (ts::Mouse::getLastMove().x != 0 || ts::Mouse::getLastMove().y != 0))
+			|| (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button1) == ts::Mouse::buttonPressed)) {
 		if (selectedBlock.block != NULL) {
 			glm::vec3 placeBlockPos = selectedBlock.getAddBlockPosition();
 			if (placeBlockPos.x >= 0 && placeBlockPos.x <= width - 1 && placeBlockPos.y >= 0 && placeBlockPos.y <= height - 1 && placeBlockPos.z >= 0 && placeBlockPos.z <= depth - 1) {
@@ -165,6 +168,141 @@ void CubeModel::handleInput() {
 					block->setColor(currentColor);
 					block->setDrawn(true);
 					renderer.updateBlockAtPosition(placeBlockPos.x, placeBlockPos.y, placeBlockPos.z);
+				}
+			}
+		}
+	}
+
+	if (ts::Keyboard::isKeyPressed(ts::Keyboard::Num1)) {
+		if (selectedBlock.block != NULL) {
+			Block * block = storage->getBlockArray()[selectedBlock.x * height * depth + selectedBlock.y * depth + selectedBlock.z];
+
+			block->setDrawn(false);
+			renderer.markDirty();
+		}
+	}
+
+	if (ts::Keyboard::isKeyPressed(ts::Keyboard::Num2)) {
+		if (selectedBlock.block != NULL) {
+			glm::vec3 placeBlockPos = selectedBlock.getAddBlockPosition();
+			if (placeBlockPos.x >= 0 && placeBlockPos.x < width && placeBlockPos.y >= 0 && placeBlockPos.y < height && placeBlockPos.z >= 0 && placeBlockPos.z < depth) {
+				Block * block = storage->getBlockArray()[(int) placeBlockPos.x * height * depth + (int) placeBlockPos.y * depth + (int) placeBlockPos.z];
+				if (!block->isDrawn()) {
+
+					block->setColor(currentColor);
+					block->setDrawn(true);
+					renderer.updateBlockAtPosition(placeBlockPos.x, placeBlockPos.y, placeBlockPos.z);
+				}
+			}
+		}
+	}
+
+	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Z) == ts::Keyboard::keyPressed && !ts::Keyboard::isKeyPressed(ts::Keyboard::LShift)) {
+		if (selectedBlock.block != NULL) {
+			int x = selectedBlock.x;
+			int y = selectedBlock.y;
+			for (int i = 0; i < depth; ++i) {
+				Block * block = storage->getBlockArray()[x * height * depth + y * depth + i];
+
+				block->setDrawn(false);
+			}
+			renderer.markDirty();
+		}
+	} else if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Z) == ts::Keyboard::keyPressed && ts::Keyboard::isKeyPressed(ts::Keyboard::LShift)) {
+		if (selectedBlock.block != NULL) {
+			glm::vec3 placeBlockPos = selectedBlock.getAddBlockPosition();
+
+			int x = placeBlockPos.x;
+			int y = placeBlockPos.y;
+
+			if (x >= 0 && x < width && y >= 0 && y < height) {
+				for (int i = 0; i < depth; ++i) {
+					Block * block = storage->getBlockArray()[x * height * depth + y * depth + i];
+
+					block->setColor(currentColor);
+					block->setDrawn(true);
+					renderer.updateBlockAtPosition(x, y, i);
+				}
+				renderer.markDirty();
+			}
+		}
+	}
+
+	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::X) == ts::Keyboard::keyPressed && !ts::Keyboard::isKeyPressed(ts::Keyboard::LShift)) {
+		if (selectedBlock.block != NULL) {
+			int y = selectedBlock.y;
+			int z = selectedBlock.z;
+			for (int i = 0; i < width; ++i) {
+				Block * block = storage->getBlockArray()[i * height * depth + y * depth + z];
+
+				block->setDrawn(false);
+			}
+			renderer.markDirty();
+		}
+	} else if (ts::Keyboard::checkKeyEvent(ts::Keyboard::X) == ts::Keyboard::keyPressed && ts::Keyboard::isKeyPressed(ts::Keyboard::LShift)) {
+		if (selectedBlock.block != NULL) {
+			glm::vec3 placeBlockPos = selectedBlock.getAddBlockPosition();
+
+			int y = placeBlockPos.y;
+			int z = placeBlockPos.z;
+
+			if (z >= 0 && z < depth && y >= 0 && y < height) {
+				for (int i = 0; i < width; ++i) {
+					Block * block = storage->getBlockArray()[i * height * depth + y * depth + z];
+
+					block->setColor(currentColor);
+					block->setDrawn(true);
+					renderer.updateBlockAtPosition(i, y, z);
+				}
+				renderer.markDirty();
+			}
+		}
+	}
+
+	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Y) == ts::Keyboard::keyPressed && !ts::Keyboard::isKeyPressed(ts::Keyboard::LShift)) {
+		if (selectedBlock.block != NULL) {
+			int x = selectedBlock.x;
+			int z = selectedBlock.z;
+			for (int i = 0; i < height; ++i) {
+				Block * block = storage->getBlockArray()[x * height * depth + i * depth + z];
+
+				block->setDrawn(false);
+			}
+			renderer.markDirty();
+		}
+	} else if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Y) == ts::Keyboard::keyPressed && ts::Keyboard::isKeyPressed(ts::Keyboard::LShift)) {
+		if (selectedBlock.block != NULL) {
+			glm::vec3 placeBlockPos = selectedBlock.getAddBlockPosition();
+
+			int x = placeBlockPos.x;
+			int z = placeBlockPos.z;
+
+			if (z >= 0 && z < depth && x >= 0 && x < width) {
+				for (int i = 0; i < width; ++i) {
+					Block * block = storage->getBlockArray()[x * height * depth + i * depth + z];
+
+					block->setColor(currentColor);
+					block->setDrawn(true);
+					renderer.updateBlockAtPosition(x, i, z);
+				}
+				renderer.markDirty();
+			}
+		}
+	}
+
+	if (ts::Keyboard::isKeyPressed(ts::Keyboard::C) == ts::Keyboard::keyPressed) {
+		if (selectedBlock.block != NULL) {
+			for (int x = selectedBlock.x - 2; x < selectedBlock.x + 3; ++x) {
+				for (int y = selectedBlock.y - 2; y < selectedBlock.y + 3; ++y) {
+					for (int z = selectedBlock.z - 2; z < selectedBlock.z + 3; ++z) {
+						if (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth) {
+							Block * block = storage->getBlockArray()[x * height * depth + y * depth + z];
+							if (block != NULL) {
+								block->setColor(currentColor);
+								renderer.updateBlockAtPosition(x, y, z);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -200,10 +338,13 @@ void CubeModel::save(const char * fileName) {
 
 				bool isDrawn = block->isDrawn();
 				glm::vec3 blockColor = block->getColor();
+				unsigned char r = blockColor.r * 255;
+				unsigned char g = blockColor.g * 255;
+				unsigned char b = blockColor.b * 255;
 				file.write((char *) &isDrawn, 1);
-				file.write((char *) &(blockColor.x), 4);
-				file.write((char *) &(blockColor.y), 4);
-				file.write((char *) &(blockColor.z), 4);
+				file.write((char *) &r, 1);
+				file.write((char *) &g, 1);
+				file.write((char *) &b, 1);
 			}
 		}
 	}
@@ -236,7 +377,7 @@ void CubeModel::load(const char * fileName) {
 	depth = *(int *) &header[8];
 
 	int numCubes = width * height * depth;
-	int bytesPerCube = 13;
+	int bytesPerCube = 4;
 	int bufferSize = numCubes * bytesPerCube;
 	char * buffer = new char[bufferSize];
 
@@ -251,9 +392,13 @@ void CubeModel::load(const char * fileName) {
 				bool drawn = *(bool *) &buffer[blockIndex * bytesPerCube];
 				glm::vec3 blockColor;
 
-				blockColor.x = *(float *) &buffer[blockIndex * bytesPerCube + 1];//Change to save as byte not float
-				blockColor.y = *(float *) &buffer[blockIndex * bytesPerCube + 5];
-				blockColor.z = *(float *) &buffer[blockIndex * bytesPerCube + 9];
+				unsigned char r = buffer[blockIndex * bytesPerCube + 1];
+				unsigned char g = buffer[blockIndex * bytesPerCube + 2];
+				unsigned char b = buffer[blockIndex * bytesPerCube + 3];
+
+				blockColor.r = r / 255.f;
+				blockColor.g = g / 255.f;
+				blockColor.b = b / 255.f;
 
 				block->setDrawn(drawn);
 				block->setColor(blockColor);

@@ -38,8 +38,8 @@ void GameWindow::create(int w, int h, const char * title) {
 	this->title = title;
 	running = false;
 	create(VideoMode(w, h, 32), title);
-	setVerticalSyncEnabled(true);
-//	setFramerateLimit(60);
+//	setVerticalSyncEnabled(true);
+	setFramerateLimit(30);
 	init();
 	initGL();
 }

@@ -28,6 +28,7 @@ CubeModel::CubeModel() {
 	pitch = 0;
 	viewMatrixNeedsUpdate = false;
 	zoom = 1;
+	colorSize = 1;
 
 	storage = NULL;
 }
@@ -40,6 +41,7 @@ CubeModel::CubeModel(int w, int h, int d) {
 	yaw = 0;
 	pitch = 0;
 	viewMatrixNeedsUpdate = true;
+	colorSize = 2;
 
 	int maxHeightDepth = (height > depth ? height : depth);
 	int maxWidthHeightDepth = (width > maxHeightDepth ? width : maxHeightDepth);
@@ -145,6 +147,16 @@ void CubeModel::handleInput() {
 			zoom = maxWidthHeightDepth * 2;
 		}
 		viewMatrixNeedsUpdate = true;
+	}
+
+	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Left) == ts::Keyboard::keyPressed) {
+		if(colorSize > 1)colorSize--;
+	}
+
+	if (ts::Keyboard::checkKeyEvent(ts::Keyboard::Right) == ts::Keyboard::keyPressed) {
+		int maxHeightDepth = (height > depth ? height : depth);
+		int maxWidthHeightDepth = (width > maxHeightDepth ? width : maxHeightDepth);
+		if(colorSize < maxWidthHeightDepth) colorSize++;
 	}
 
 	if ((ts::Mouse::isButtonPressed(ts::Mouse::Button0) && (ts::Mouse::getLastMove().x != 0 || ts::Mouse::getLastMove().y != 0))
@@ -292,9 +304,9 @@ void CubeModel::handleInput() {
 
 	if (ts::Keyboard::isKeyPressed(ts::Keyboard::C) == ts::Keyboard::keyPressed) {
 		if (selectedBlock.block != NULL) {
-			for (int x = selectedBlock.x - 2; x < selectedBlock.x + 3; ++x) {
-				for (int y = selectedBlock.y - 2; y < selectedBlock.y + 3; ++y) {
-					for (int z = selectedBlock.z - 2; z < selectedBlock.z + 3; ++z) {
+			for (int x = selectedBlock.x - (colorSize / 2); x < selectedBlock.x + ((colorSize + 1) / 2); ++x) {
+				for (int y = selectedBlock.y - (colorSize / 2); y < selectedBlock.y + ((colorSize + 1) / 2); ++y) {
+					for (int z = selectedBlock.z - (colorSize / 2); z < selectedBlock.z + ((colorSize + 1) / 2); ++z) {
 						if (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth) {
 							Block * block = storage->getBlockArray()[x * height * depth + y * depth + z];
 							if (block != NULL) {

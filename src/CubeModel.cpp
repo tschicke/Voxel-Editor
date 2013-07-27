@@ -162,10 +162,19 @@ void CubeModel::handleInput() {
 	if ((ts::Mouse::isButtonPressed(ts::Mouse::Button0) && (ts::Mouse::getLastMove().x != 0 || ts::Mouse::getLastMove().y != 0))
 			|| (ts::Mouse::checkMouseButtonEvent(ts::Mouse::Button0) == ts::Mouse::buttonPressed)) {
 		if (selectedBlock.block != NULL) {
-			Block * block = storage->getBlockArray()[selectedBlock.x * height * depth + selectedBlock.y * depth + selectedBlock.z];
-
-			block->setDrawn(false);
-			renderer.markDirty();
+			for (int x = selectedBlock.x - (colorSize / 2); x < selectedBlock.x + ((colorSize + 1) / 2); ++x) {
+				for (int y = selectedBlock.y - (colorSize / 2); y < selectedBlock.y + ((colorSize + 1) / 2); ++y) {
+					for (int z = selectedBlock.z - (colorSize / 2); z < selectedBlock.z + ((colorSize + 1) / 2); ++z) {
+						if (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth) {
+							Block * block = storage->getBlockArray()[x * height * depth + y * depth + z];
+							if (block != NULL) {
+								block->setDrawn(false);
+								renderer.markDirty();
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
